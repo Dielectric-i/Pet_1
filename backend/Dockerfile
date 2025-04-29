@@ -1,18 +1,15 @@
 # === СТАДИЯ 1: сборка (build) ===
-# Используем официальный SDK образ с .NET 9
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 # Рабочая папка внутри контейнера
 WORKDIR /src
 # Копируем только файл csproj для ускорения layer‑кэширования
-COPY backend/backend.csproj ./backend/
+COPY backend.csproj ./
 # Восстанавливаем зависимости NuGet
-RUN dotnet restore backend/backend.csproj
+RUN dotnet restore ./backend.csproj
 # Копируем весь код проекта
-COPY backend/ ./backend
+COPY . .
 # Публикуем приложение в папку /app/publish (Release‑сборка)
-RUN dotnet publish backend/backend.csproj \
-    -c Release \
-    -o /app/publish
+RUN dotnet publish -c Release -o /app/publish
 
 # === СТАДИЯ 2: runtime ===
 # Берём лёгкий runtime‑образ без SDK
