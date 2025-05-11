@@ -1,7 +1,6 @@
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 
-// Конфигурация остаётся супер-простой.
 // В dev-режиме Vite сам проксирует /api → localhost:5000.
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd());
@@ -18,7 +17,7 @@ export default defineConfig(({ mode }) => {
       }
     },
     build: {
-      outDir: 'dist',      // Nginx будет брать статику отсюда
+      outDir: 'dist',
       emptyOutDir: true
     }
   };
