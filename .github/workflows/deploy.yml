@@ -39,7 +39,7 @@ jobs:
           context: ./backend
           file: ./backend/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/myapp-backend:latest
+          tags: ${{ secrets.DOCKER_USERNAME }}/pet1-backend:latest
           platforms: linux/amd64
 
       # # 5. Собираем и пушим образ для фронтенда.
