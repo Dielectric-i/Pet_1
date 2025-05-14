@@ -34,7 +34,7 @@ jobs:
 
       # 4. Собираем и пушим образ для бэкенда.
       - name: Build and push backend image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v5
         with:
           context: ./backend
           file: ./backend/Dockerfile
