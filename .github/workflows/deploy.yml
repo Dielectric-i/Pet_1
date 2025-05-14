@@ -1,0 +1,72 @@
+# Название пайплайна, отображается в интерфейсе GitHub Actions.
+name: CI/CD Pipeline
+
+# Триггеры: пайплайн срабатывает при пуше в ветку main.
+on:
+  push:
+    branches:
+      - main
+
+# Задачи (jobs), которые выполняет пайплайн.
+jobs:
+  # Задача для сборки и деплоя.
+  build-and-deploy:
+    # Используем последнюю версию Ubuntu для выполнения задач.
+    runs-on: ubuntu-latest
+
+    # Шаги, которые выполняются последовательно.
+    steps:
+      # 1. Клонируем репозиторий на машину GitHub Actions.
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Настраиваем Docker Buildx для поддержки многоплатформенных сборок.
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # 3. Логинимся в Docker Hub, используя секреты из GitHub.
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # 4. Собираем и пушим образ для бэкенда.
+      - name: Build and push backend image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/myapp-backend:latest
+          platforms: linux/amd64
+
+      # 5. Собираем и пушим образ для фронтенда.
+      - name: Build and push frontend image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./frontend/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/myapp-frontend:latest
+          platforms: linux/amd64
+
+      # 6. Деплоим на домашний сервер через SSH.
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_SSH_HOST }}
+          username: ${{ secrets.VPS_SSH_USERNAME }}
+          key: ${{ secrets.VPS_SSH_SECRET }}
+          port: ${{ secrets.VPS_SSH_PORT }}
+          script: |
+            # Переходим в директорию с проектом.
+            cd ~/Repo/Pet_1
+            # Обновляем код репозитория.
+            git pull origin main
+            # Логинимся в Docker Hub на сервере.
+            echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+            # Останавливаем и удаляем текущие контейнеры.
+            docker compose down
+            # Пуллим новые образы и запускаем сервисы.
+            docker compose up -d --remove-orphans

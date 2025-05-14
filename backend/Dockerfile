@@ -3,7 +3,7 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 # Рабочая папка внутри контейнера
 WORKDIR /src
 # Копируем только файл csproj для ускорения layer‑кэширования
-COPY /backend/backend.csproj ./
+COPY /backend.csproj ./
 # Восстанавливаем зависимости NuGet
 RUN dotnet restore ./backend.csproj
 # Копируем весь код проекта
