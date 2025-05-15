@@ -71,3 +71,4 @@ jobs:
             docker compose down
             # Пуллим новые образы и запускаем сервисы.
             docker compose up -d --remove-orphans
+            
