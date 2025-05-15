@@ -36,10 +36,10 @@ services:
     networks:
       - app-net
     
-  networks:
-  app-net:
-    driver: bridge
-    ipam:
-      driver: default
-      config:
-        - subnet: 172.30.0.0/24 
+networks:
+app-net:
+  driver: bridge
+  ipam:
+    driver: default
+    config:
+      - subnet: 172.30.0.0/24 
