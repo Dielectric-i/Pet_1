@@ -9,7 +9,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Production
     ports:
-      - "5000:5000"                    # host:container
+      - "5000:1111"                    # host:container
     # healthcheck:                       # проверяем доступность API
     #   test: ["CMD", "curl", "-f", "http://localhost:5000/healthz"]
     #   interval: 30s
@@ -29,4 +29,4 @@ services:
       # адрес API прокидываем в фронт (vite читает из import.meta.env)
       VITE_API_BASE_URL: http://backend:5000
     ports:
-      - "3000:3000"
+      - "3000:1111"
