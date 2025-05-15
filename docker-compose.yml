@@ -10,6 +10,8 @@ services:
       ASPNETCORE_ENVIRONMENT: Production
     ports:
       - "5000:5000"                    # host:container
+    networks:
+      - app-net
     # healthcheck:                       # проверяем доступность API
     #   test: ["CMD", "curl", "-f", "http://localhost:5000/healthz"]
     #   interval: 30s
@@ -31,3 +33,13 @@ services:
       VITE_API_BASE_URL: http://backend:5000
     ports:
       - "3000:80"
+    networks:
+      - app-net
+    
+  networks:
+  app-net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.30.0.0/24 
