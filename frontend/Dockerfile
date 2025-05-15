@@ -17,6 +17,6 @@ RUN npm run build               # → /app/dist
 #########################################################
 FROM nginx:stable-alpine AS runtime
 COPY --from=build /app/dist /usr/share/nginx/html
-# контейнер слушает 80 порт
+# контейнер слушает 3000 порт
 EXPOSE 3000
 CMD ["nginx", "-g", "daemon off;"]
