@@ -5,8 +5,8 @@ FROM node:24-alpine AS build
 WORKDIR /app
 
 # 1. Устанавливаем зависимости отдельно, чтобы кеш слоёв
-COPY /package*.json ./
-RUN npm ci --omit=dev           # быстрее и чище чем npm i
+COPY ./package*.json ./
+RUN npm ci --omit=dev
 
 # 2. Копируем исходники и собираем оптимизированный билд
 COPY . .
