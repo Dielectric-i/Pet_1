@@ -41,6 +41,7 @@ jobs:
           tags: ${{ secrets.DOCKER_USERNAME }}/pet1-backend:latest
           platforms: linux/amd64
 
+          
       # # 5. Собираем и пушим образ для фронтенда.
       # - name: Build and push frontend image
       #   uses: docker/build-push-action@v6
