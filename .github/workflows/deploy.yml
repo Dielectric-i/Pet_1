@@ -41,33 +41,33 @@ jobs:
           tags: ${{ secrets.DOCKER_USERNAME }}/pet1-backend:latest
           platforms: linux/amd64
 
-          
-      # # 5. Собираем и пушим образ для фронтенда.
-      # - name: Build and push frontend image
-      #   uses: docker/build-push-action@v6
-      #   with:
-      #     context: .
-      #     file: ./frontend/Dockerfile
-      #     push: true
-      #     tags: ${{ secrets.DOCKER_USERNAME }}/myapp-frontend:latest
-      #     platforms: linux/amd64
 
-      # # 6. Деплоим на домашний сервер через SSH.
-      # - name: Deploy to VPS
-      #   uses: appleboy/ssh-action@v1.2.0
-      #   with:
-      #     host: ${{ secrets.VPS_SSH_HOST }}
-      #     username: ${{ secrets.VPS_SSH_USERNAME }}
-      #     key: ${{ secrets.VPS_SSH_SECRET }}
-      #     port: ${{ secrets.VPS_SSH_PORT }}
-      #     script: |
-      #       # Переходим в директорию с проектом.
-      #       cd ~/Repo/Pet_1
-      #       # Обновляем код репозитория.
-      #       git pull origin main
-      #       # Логинимся в Docker Hub на сервере.
-      #       echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-      #       # Останавливаем и удаляем текущие контейнеры.
-      #       docker compose down
-      #       # Пуллим новые образы и запускаем сервисы.
-      #       docker compose up -d --remove-orphans
+      # 5. Собираем и пушим образ для фронтенда.
+      - name: Build and push frontend image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./frontend/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/myapp-frontend:latest
+          platforms: linux/amd64
+
+      # 6. Деплоим на домашний сервер через SSH.
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_SSH_HOST }}
+          username: ${{ secrets.VPS_SSH_USERNAME }}
+          key: ${{ secrets.VPS_SSH_SECRET }}
+          port: ${{ secrets.VPS_SSH_PORT }}
+          script: |
+            # Переходим в директорию с проектом.
+            cd ~/Repo/Pet_1
+            # Обновляем код репозитория.
+            git pull origin main
+            # Логинимся в Docker Hub на сервере.
+            echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+            # Останавливаем и удаляем текущие контейнеры.
+            docker compose down
+            # Пуллим новые образы и запускаем сервисы.
+            docker compose up -d --remove-orphans
