@@ -14,7 +14,7 @@ function Counter() {
 export default function App() {
   return (
     <Store>
-      <h1>Hello 👋</h1>
+      <h1>Hello !👋</h1>
       <Counter />
     </Store>
   );
