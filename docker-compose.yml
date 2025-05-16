@@ -39,3 +39,4 @@ services:
 networks:
   app-net:
     driver: bridge
+    internal: true
