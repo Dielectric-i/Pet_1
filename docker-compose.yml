@@ -39,4 +39,3 @@ services:
 networks:
   app-net:
     driver: bridge
-    external: true
