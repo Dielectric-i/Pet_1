@@ -3,6 +3,7 @@ services:
   #  Backend (.NET 9)                                   #
   #######################################################
   backend:
+    image: dielectrici/pet1-backend:latest
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -13,6 +14,7 @@ services:
   #  Frontend (React + TS)                              #
   #######################################################
   frontend:
+    image: dielectrici/pet1-frontend:latest
     build:
       context: ./frontend
       dockerfile: Dockerfile
