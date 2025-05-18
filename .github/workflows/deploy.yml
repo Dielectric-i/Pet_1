@@ -61,15 +61,8 @@ jobs:
           port: ${{ secrets.VPS_SSH_PORT }}
           script: |
             cd ~/Repo/Pet_1
-            git pull || true
-            docker compose down || true
-            docker network rm pet_1_petnet || true
-            docker compose pull || true
-            docker compose up -d --force-recreate || true
-
-            # 🛠 Восстановление default route динамически
-            sleep 2
-            real_gw=$(ip route get 1.1.1.1 | awk '/via/ {print $3}')
-            real_dev=$(ip route get 1.1.1.1 | awk '/dev/ {print $5}')
-            sudo ip route del default || true
-            sudo ip route add default via "$real_gw" dev "$real_dev"
+            git pull
+            docker compose down
+            sleep 5
+            docker compose pull
+            docker compose up -d --force-recreate
