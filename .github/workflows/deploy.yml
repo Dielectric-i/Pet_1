@@ -67,8 +67,6 @@ jobs:
             docker compose down
             sleep 5
 
-            echo ">>> docker network rm pet_1_petnet"
-            docker network rm pet_1_petnet || echo "(network already removed or still in use)"
             sleep 5
 
             echo ">>> git pull"
