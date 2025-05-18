@@ -68,6 +68,6 @@ jobs:
             echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
             # Останавливаем и удаляем текущие контейнеры.
             docker compose down
-            docker network rm pet_1_petnet || true
+            docker network rm pet_1_petnet
             docker compose pull
             docker compose up -d --force-recreate
