@@ -71,3 +71,4 @@ jobs:
             docker network rm pet_1_petnet
             docker compose pull
             docker compose up -d --force-recreate
+            
