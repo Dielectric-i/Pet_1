@@ -60,13 +60,12 @@ jobs:
           key: ${{ secrets.VPS_SSH_SECRET }}
           port: ${{ secrets.VPS_SSH_PORT }}
           script: |
-            real_gw=$(ip route get 1.1.1.1 | awk '/via/ {print $3}')
-            real_dev=$(ip route get 1.1.1.1 | awk '/dev/ {print $5}')
-            ip route del default || true
-            ip route add default via "$real_gw" dev "$real_dev"
+            docker compose down
+            sleep 5
+            docker network rm pet_1_petnet
+            sleep 5
             cd ~/Repo/Pet_1
             git pull
-            docker compose down
             sleep 5
             docker rmi dielectrici/pet1-frontend:latest
             docker rmi dielectrici/pet1-backend:latest
