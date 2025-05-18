@@ -1,7 +1,7 @@
 #########################################################
 # СТАДИЯ 1 — Сборка React-приложения                     #
 #########################################################
-FROM node:24-alpine AS build
+FROM node:stable-alpine AS build
 WORKDIR /app
 
 # 1. Устанавливаем зависимости отдельно, чтобы кеш слоёв
@@ -21,5 +21,5 @@ FROM nginx:stable-alpine AS runtime
 COPY --from=build /app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/nginx.conf
 # nginx внутри контейнера слушает 80 порт
-EXPOSE 3000
+EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]

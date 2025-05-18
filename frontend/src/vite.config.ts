@@ -13,7 +13,10 @@ export default defineConfig(({ mode }) => {
     server: {
       port: 5173,
       proxy: {
-        '/api': env.VITE_API_BASE_URL || 'http://localhost:5000'
+        '/api': env.VITE_API_BASE_URL || 'http://localhost:5000',
+        // В дев-режиме кнопка шлёт `GET /check` → проксируем так же,
+        // чтобы код не отличался между dev и prod.
+        '/check': env.VITE_API_BASE_URL || 'http://localhost:5000'
       }
     },
     build: {

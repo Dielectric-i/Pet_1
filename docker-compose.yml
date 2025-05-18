@@ -6,18 +6,8 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    # environment:
-    #   ASPNETCORE_ENVIRONMENT: Production
-    ports:
-      - "5000:5000"                    # host:container
-    networks:
-      - petnet
-    # healthcheck:                       # проверяем доступность API
-    #   test: ["CMD", "curl", "-f", "http://localhost:5000/healthz"]
-    #   interval: 30s
-    #   timeout: 3s
-    #   retries: 5
-
+    ports: [5000:5000]
+    networks: [petnet]
 
   #######################################################
   #  Frontend (React + TS)                              #
@@ -26,15 +16,13 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    depends_on:
-      - backend                          # ждём пока API взлетит
-    environment:
-      # адрес API прокидываем в фронт (vite читает из import.meta.env)
-      VITE_API_BASE_URL: http://backend:5000
-    ports:
-      - "3000:80"
-    networks:
-      - petnet
+      # ⬇⬇⬇  Прокидываем URL API прям в стадию build,
+      # чтоб Vite «зашил» его в JavaScript-бандл.
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://backend:5000}
+    depends_on: [backend]
+    ports: [3000:80]              # host:container
+    networks: [petnet]
     
 networks:
   petnet:
