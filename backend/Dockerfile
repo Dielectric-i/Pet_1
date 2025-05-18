@@ -1,25 +1,28 @@
-# === СТАДИЯ 1: сборка (build) ===
+#########################################################
+# СТАДИЯ 1 — Сборка .NET‑приложения                     #
+#########################################################
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
-# Рабочая папка внутри контейнера
 WORKDIR /src
+
 # Копируем только файл csproj для ускорения layer‑кэширования
-COPY /backend.csproj ./
-# Восстанавливаем зависимости NuGet
+COPY backend.csproj ./
 RUN dotnet restore ./backend.csproj
+
 # Копируем весь код проекта
 COPY . .
+
 # Публикуем приложение в папку /app/publish (Release‑сборка)
 RUN dotnet publish -c Release -o /app/publish
 
-# === СТАДИЯ 2: runtime ===
-# Берём лёгкий runtime‑образ без SDK
+#########################################################
+# СТАДИЯ 2 — Runtime                                    #
+#########################################################
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
 WORKDIR /app
-# Копируем из стадии build готовые dll и прочие артефакты
 COPY --from=build /app/publish .
-# гарантируем порт
+
+# Гарантируем порт
 ENV ASPNETCORE_URLS=http://0.0.0.0:5000
-# Указываем, что контейнер слушает порт 5000
 EXPOSE 5000
-# Точка входа: запускаем приложение
+
 ENTRYPOINT ["dotnet", "backend.dll"]
