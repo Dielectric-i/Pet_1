@@ -54,7 +54,7 @@ const checkBackend = async () => {
         onClick={checkBackend}
         className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded shadow"
       >
-        Проверить соединение
+        Проверить
       </button>
       {status /* && (
         <p className="mt-4 text-sm text-gray-300">{status}</p>
