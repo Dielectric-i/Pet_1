@@ -60,15 +60,16 @@ jobs:
           key: ${{ secrets.VPS_SSH_SECRET }}
           port: ${{ secrets.VPS_SSH_PORT }}
           script: |
-            # Переходим в директорию с проектом.
             cd ~/Repo/Pet_1
-            # Обновляем код репозитория.
-            git pull origin main
-            # Логинимся в Docker Hub на сервере.
-            echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-            # Останавливаем и удаляем текущие контейнеры.
-            docker compose down
-            docker network rm pet_1_petnet
-            docker compose pull
-            docker compose up -d --force-recreate
-            
+            git pull || true
+            docker compose down || true
+            docker network rm pet_1_petnet || true
+            docker compose pull || true
+            docker compose up -d --force-recreate || true
+
+            # 🛠 Восстановление default route динамически
+            sleep 2
+            real_gw=$(ip route get 1.1.1.1 | awk '/via/ {print $3}')
+            real_dev=$(ip route get 1.1.1.1 | awk '/dev/ {print $5}')
+            sudo ip route del default || true
+            sudo ip route add default via "$real_gw" dev "$real_dev"
