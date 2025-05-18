@@ -60,14 +60,26 @@ jobs:
           key: ${{ secrets.VPS_SSH_SECRET }}
           port: ${{ secrets.VPS_SSH_PORT }}
           script: |
+            echo ">>> cd ~/Repo/Pet_1"
+            cd ~/Repo/Pet_1
+
+            echo ">>> docker compose down"
             docker compose down
             sleep 5
-            docker network rm pet_1_petnet
+
+            echo ">>> docker network rm pet_1_petnet"
+            docker network rm pet_1_petnet || echo "(network already removed or still in use)"
             sleep 5
-            cd ~/Repo/Pet_1
-            git pull
-            sleep 5
-            docker rmi dielectrici/pet1-frontend:latest
-            docker rmi dielectrici/pet1-backend:latest
-            docker compose pull
-            docker compose up -d --force-recreate
+
+            echo ">>> git pull"
+            git pull || echo "(git pull failed, likely due to routing issue)"
+
+            # echo ">>> removing images"
+            # docker rmi dielectrici/pet1-frontend:latest || true
+            # docker rmi dielectrici/pet1-backend:latest || true
+
+            # echo ">>> docker compose pull"
+            # docker compose pull
+
+            # echo ">>> docker compose up"
+            # docker compose up -d --force-recreate
