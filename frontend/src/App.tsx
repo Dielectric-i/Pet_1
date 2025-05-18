@@ -49,7 +49,7 @@ const checkBackend = async () => {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center px-4">
-      <h1 className="text-3xl font-bold mb-6">Добро пожаловать</h1>
+      <h1 className="text-3xl font-bold mb-6">Добро</h1>
       <button
         onClick={checkBackend}
         className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded shadow"
