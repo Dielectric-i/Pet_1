@@ -64,5 +64,7 @@ jobs:
             git pull
             docker compose down
             sleep 5
+            docker rmi dielectrici/pet1-frontend:latest
+            docker rmi dielectrici/pet1-backend:latest
             docker compose pull
             docker compose up -d --force-recreate
