@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 
+namespace PetApi.Controllers;
+
 // Контроллер обеспечивает эндпойнт GET /check
 // Возвращает JSON вида { "status": "OK" }, который ждёт фронтенд.
 [ApiController]

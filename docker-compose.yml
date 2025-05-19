@@ -1,4 +1,17 @@
 services:
+  ############################
+  #  Database (PostgreSQL)   #
+  ############################
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: petuser
+      POSTGRES_PASSWORD: petpass
+      POSTGRES_DB: petdb
+    volumes: [db-data:/var/lib/postgresql/data]
+    ports: [5432:5432]
+    networks: [petnet]
   #######################################################
   #  Backend (.NET 9)                                   #
   #######################################################
@@ -9,6 +22,10 @@ services:
       dockerfile: Dockerfile
     ports: [5000:5000]
     networks: [petnet]
+    depends_on: [db]
+    environment:
+      # пробрасываем строку подключения внутрь контейнера
+      ConnectionStrings__Default: Host=db;Database=petdb;Username=petuser;Password=petpass
 
   #######################################################
   #  Frontend (React + TS)                              #
@@ -25,7 +42,7 @@ services:
     depends_on: [backend]
     ports: [3000:80]              # host:container
     networks: [petnet]
-    
+
 networks:
   petnet:
     driver: bridge
@@ -36,3 +53,6 @@ networks:
     driver_opts:
       com.docker.network.bridge.enable_icc: "true"
       com.docker.network.bridge.enable_ip_masquerade: "false"
+
+volumes:
+  db-data: {}
