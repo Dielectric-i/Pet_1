@@ -46,6 +46,13 @@ builder.Services.AddAuthorization();
 builder.WebHost.UseUrls("http://0.0.0.0:5000");
 var app = builder.Build();
 
+// ⬇⬇⬇ Автоматическое применение миграций при старте
+using (var scope = app.Services.CreateScope())
+{
+var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+db.Database.Migrate();
+}
+
 if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 {
     app.UseSwagger();
