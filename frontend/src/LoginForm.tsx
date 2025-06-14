@@ -51,7 +51,7 @@ export default function LoginForm() {
 
       <input
         className="px-3 py-2 rounded bg-gray-700 outline-none focus:ring-2 focus:ring-blue-500"
-        placeholder="Имя пользователя"
+        placeholder="username"
         value={username}
         onChange={(e) => setUsername(e.target.value)}
       />
