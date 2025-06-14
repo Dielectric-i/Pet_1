@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import {jwtDecode} from 'jwt-decode';
 
+
 // Тип payload внутри JWT (расширяется по мере роста проекта)
 type JwtPayload = {
   name: string;
@@ -40,7 +41,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const login = async (username: string, password: string) => {
-    const res = await fetch('/auth/login', {
+    const res = await fetch(`http://localhost:5000/auth/login`,
+    {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password }),
@@ -59,7 +61,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const register = async (username: string, password: string) => {
-    const res = await fetch('/auth/register', {
+    const res = await fetch(`http://localhost:5000/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password }),
