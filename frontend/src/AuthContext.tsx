@@ -1,90 +1,107 @@
-import { createContext, useContext, useEffect, useState } from 'react';
-import {jwtDecode} from 'jwt-decode';
+import React, { createContext, useContext, useMemo, useState } from "react";
+import { jwtDecode } from "jwt-decode";
+import { request } from "./api";
 
-
-// Тип payload внутри JWT (расширяется по мере роста проекта)
-type JwtPayload = {
-  name: string;
+interface JwtPayload {
   exp: number;
-};
+  [key: string]: unknown; // allow arbitrary extra claims – future-proof
+}
 
-type AuthContextValue = {
+interface AuthContextValue {
   user: string | null;
   token: string | null;
   login: (username: string, password: string) => Promise<boolean>;
   register: (username: string, password: string) => Promise<boolean>;
   logout: () => void;
-};
+}
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [token, setToken] = useState<string | null>(null);
-  const [user, setUser] = useState<string | null>(null);
-
-  // при первой загрузке читаем token из localStorage
-  useEffect(() => {
-    const saved = localStorage.getItem('token');
-    if (saved) {
-      try {
-        const decoded = jwtDecode<JwtPayload>(saved);
-        if (decoded.exp * 1000 > Date.now()) {
-          setToken(saved);
-          setUser(decoded.name);
-        } else {
-          localStorage.removeItem('token');
-        }
-      } catch {
-        localStorage.removeItem('token');
-      }
-    }
-  }, []);
-
-  const login = async (username: string, password: string) => {
-    const res = await fetch(`/auth/login`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password }),
-    });
-
-    if (!res.ok) return false;
-
-    const data = await res.json();
-    if (!data.token) return false;
-
-    localStorage.setItem('token', data.token);
-    const decoded = jwtDecode<JwtPayload>(data.token);
-    setToken(data.token);
-    setUser(decoded.name);
-    return true;
+export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
+  // --- helpers --------------------------------------------------------------
+  const extractName = (payload: Record<string, unknown>): string | null => {
+    return (
+      (payload["name"] as string) ||
+      (payload["unique_name"] as string) ||
+      (payload["username"] as string) ||
+      (payload["sub"] as string) ||
+      null
+    );
   };
 
-  const register = async (username: string, password: string) => {
-    const res = await fetch(`/auth/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password }),
-    });
+  const [token, setToken] = useState<string | null>(() => {
+    return localStorage.getItem("token");
+  });
 
-    return res.ok;
+  const [user, setUser] = useState<string | null>(() => {
+    const saved = localStorage.getItem("token");
+    if (!saved) return null;
+    try {
+      const decoded = jwtDecode<JwtPayload>(saved);
+      if (decoded.exp * 1000 < Date.now()) {
+        // token expired – clean up
+        localStorage.removeItem("token");
+        return null;
+      }
+      return extractName(decoded as Record<string, unknown>);
+    } catch {
+      return null;
+    }
+  });
+
+  const persist = (newToken: string) => {
+    localStorage.setItem("token", newToken);
+    setToken(newToken);
+    const decoded = jwtDecode<JwtPayload>(newToken);
+    setUser(extractName(decoded as Record<string, unknown>));
+  };
+
+  // --- API ------------------------------------------------------------------
+  const login = async (username: string, password: string): Promise<boolean> => {
+    try {
+      const data = await request<{ token: string }>("/auth/login", {
+        method: "POST",
+        body: JSON.stringify({ username, password }),
+      });
+      persist(data.token);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  const register = async (
+    username: string,
+    password: string
+  ): Promise<boolean> => {
+    try {
+      await request("/auth/register", {
+        method: "POST",
+        body: JSON.stringify({ username, password }),
+      });
+      return await login(username, password); // auto-login after sign-up
+    } catch {
+      return false;
+    }
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
+    localStorage.removeItem("token");
     setToken(null);
     setUser(null);
   };
 
-  return (
-    <AuthContext.Provider value={{ token, user, login, register, logout }}>
-      {children}
-    </AuthContext.Provider>
+  const value = useMemo<AuthContextValue>(
+    () => ({ token, user, login, register, logout }),
+    [token, user]
   );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-export const useAuth = () => {
+export const useAuth = (): AuthContextValue => {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error('useAuth must be used inside <AuthProvider>');
+  if (!ctx) throw new Error("useAuth must be used within <AuthProvider>");
   return ctx;
 };
+
