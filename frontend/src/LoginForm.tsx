@@ -14,7 +14,7 @@ export default function LoginForm() {
   const isValid = username.length >= MIN_LEN && password.length >= MIN_LEN;
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();password
+    e.preventDefault();
     if (!isValid) {
       setError(`Минимум ${MIN_LEN} символа`);
       return;
@@ -22,13 +22,10 @@ export default function LoginForm() {
     setLoading(true);
     setError(null);
 
-    let ok = false;
-    if (mode === 'login') {
-      ok = await login(username, password);
-    } else {
-      const registered = await register(username, password);
-      if (registered) ok = await login(username, password);
-    }
+    const ok =
+      mode === "login"
+        ? await login(username, password)
+        : await register(username, password);
 
     if (!ok) {
       setError(
@@ -51,8 +48,8 @@ export default function LoginForm() {
 
       <input
         className="px-3 py-2 rounded bg-gray-700 outline-none focus:ring-2 focus:ring-blue-500"
-        placeholder="username"
         value={username}
+        placeholder="Логин"
         onChange={(e) => setUsername(e.target.value)}
       />
       <input
