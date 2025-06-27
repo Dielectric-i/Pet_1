@@ -13,10 +13,10 @@ export default defineConfig(({ mode }) => {
     // },
     server: {
       port: 5173,
-      // proxy: {
-      //   '/api': env.VITE_API_BASE_URL,
-      //   '/check': env.VITE_API_BASE_URL
-      // }
+      proxy: {
+        '/auth': 'http://localhost:5000',
+        '/check': 'http://localhost:5000',
+      }
     },
     build: {
       outDir: 'dist',
