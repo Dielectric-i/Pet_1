@@ -19,7 +19,7 @@ function Greeting({ user, logout }: { user: string; logout: () => void }) {
 
 // Внутренний компонент, который использует AuthContext
 function Inner() {
-  const { user, logout } = useAuth(); // Хук должен вызываться только внутри компонента
+  const { user, logout } = useAuth();
 
   if (!user) {
     return (

@@ -2,17 +2,14 @@ import { createContext, useContext, useMemo, useState } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import { request } from './api';
 
-// export const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "";
-
-// Интерфейс для JWT payload
-interface JwtPayload {
+type JwtPayload = {
   exp: number; // время истечения токена в секундах
   name: string; // имя пользователя
-  [key: string]: unknown;
+  // [key: string]: unknown;
 }
 
-// Интерфейс для значения контекста авторизации
-interface AuthContextValue {
+// Значение контекста авторизации
+type AuthContextValue = {
   user: string | null;
   token: string | null;
   login: (username: string, password: string) => Promise<boolean>;
@@ -22,11 +19,6 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-// Вспомогательная функция для извлечения имени пользователя из payload
-const extractName = (payload: Record<string, unknown>): string | null => {
-  return (payload['name'] as string) || null;
-};
-
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // --- state -----------------------------------------------------------------
   const [token, setToken] = useState<string | null>(() => {
@@ -34,27 +26,28 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   });
 
   const [user, setUser] = useState<string | null>(() => {
-    const saved = localStorage.getItem('token');
-    if (!saved) return null;
+    const savedToken = localStorage.getItem('token');
+    if (!savedToken) return null;
     try {
-      const decoded = jwtDecode<JwtPayload>(saved);
+      const decoded = jwtDecode<JwtPayload>(savedToken);
       if (decoded.exp * 1000 < Date.now()) {
         localStorage.removeItem('token');
         return null;
       }
-      return extractName(decoded as Record<string, unknown>);
+      return decoded.name;
     } catch {
       return null;
     }
   });
 
   // --- helpers --------------------------------------------------------------
+  
   // Сохраняет токен и пользователя в localStorage и state
   const persist = (newToken: string) => {
     localStorage.setItem('token', newToken);
     setToken(newToken);
     const decoded = jwtDecode<JwtPayload>(newToken);
-    setUser(extractName(decoded as Record<string, unknown>));
+    setUser(decoded.name);
   };
 
   // --- API ------------------------------------------------------------------
