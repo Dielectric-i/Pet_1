@@ -41,8 +41,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
-builder.Services.AddAuthorization();
-
 builder.WebHost.UseUrls("http://0.0.0.0:5000");
 var app = builder.Build();
 
@@ -53,7 +51,7 @@ var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 db.Database.Migrate();
 }
 
-if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
+if (app.Environment.IsDevelopment() || app.Environment.IsProduction() || app.Environment.EnvironmentName == "local")
 {
     app.UseSwagger();
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Pet API v1"));
