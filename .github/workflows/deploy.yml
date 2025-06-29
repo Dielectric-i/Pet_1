@@ -20,7 +20,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2. Настраиваем Docker Buildаx для поддержки многоплатформенных сборок.
+      # 2. Настраиваем Docker Buildx для поддержки многоплатформенных сборок.
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 

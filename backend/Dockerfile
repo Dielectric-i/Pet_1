@@ -22,7 +22,6 @@ WORKDIR /app
 COPY --from=build /app/publish .
 
 # Гарантируем порт
-ENV ASPNETCORE_URLS=http://0.0.0.0:5000
-EXPOSE 5000
+# EXPOSE 5000
 
 ENTRYPOINT ["dotnet", "backend.dll"]

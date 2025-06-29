@@ -5,10 +5,6 @@ services:
   db:
     image: postgres:16-alpine
     restart: unless-stopped
-    environment:
-      POSTGRES_USER: petuser
-      POSTGRES_PASSWORD: petpass
-      POSTGRES_DB: petdb
     volumes: [db-data:/var/lib/postgresql/data]
     ports: [5432:5432]
     networks: [petnet]
@@ -23,9 +19,6 @@ services:
     ports: [5000:5000]
     networks: [petnet]
     depends_on: [db]
-    environment:
-      # пробрасываем строку подключения внутрь контейнера
-      ConnectionStrings__Default: Host=db;Database=petdb;Username=petuser;Password=petpass
 
   #######################################################
   #  Frontend (React + TS)                              #
@@ -35,10 +28,6 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-      # ⬇⬇⬇  Прокидываем URL API прям в стадию build,
-      # чтоб Vite «зашил» его в JavaScript-бандл.
-      args:
-        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://backend:5000}
     depends_on: [backend]
     ports: [3000:80]              # host:container
     networks: [petnet]
