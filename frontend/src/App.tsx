@@ -1,5 +1,4 @@
 import { AuthProvider, useAuth } from './AuthContext';
-import ButtonCheck from './ButtonCheck';
 import LoginForm from './LoginForm';
 
 // Компонент для приветствия и выхода пользователя
@@ -25,7 +24,6 @@ function Inner() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-900 text-white gap-6">
         <LoginForm />
-        <ButtonCheck />
       </div>
     );
   }
