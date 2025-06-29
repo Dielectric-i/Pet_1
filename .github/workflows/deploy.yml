@@ -65,21 +65,13 @@ jobs:
 
             echo ">>> docker compose down"
             docker compose down
-            sleep 5
-
-            sleep 5
+            # sleep 10
 
             echo ">>> git pull"
-            git pull || echo "(git pull failed, likely due to routing issue)"
-
-            # echo ">>> removing images"
-            # docker rmi dielectrici/pet1-frontend:latest || true
-            # docker rmi dielectrici/pet1-backend:latest || true
+            git pull || echo "(git pull failed)"
 
             echo ">>> docker compose pull"
             docker compose pull
 
-            sleep 5
-
             echo ">>> docker compose up"
-            docker compose up -d --force-recreate
+            docker compose up -d
