@@ -1,16 +1,15 @@
 import { createContext, useContext, useMemo, useState } from 'react';
 import { jwtDecode } from 'jwt-decode';
-import { request } from './api';
+import { request } from '../../../shared/api/request';
 
 type JwtPayload = {
   exp: number; // время истечения токена в секундах
   name: string; // имя пользователя
-  // [key: string]: unknown;
 }
 
-// Значение контекста авторизации
+// Интерфейс контекста авторизации
 type AuthContextValue = {
-  user: string | null;
+  username: string | null;
   token: string | null;
   login: (username: string, password: string) => Promise<boolean>;
   register: (username: string, password: string) => Promise<boolean>;
@@ -19,35 +18,42 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  // --- state -----------------------------------------------------------------
-  const [token, setToken] = useState<string | null>(() => {
-    return localStorage.getItem('token');
-  });
+// Работа с localStorage
+const getTokenFromStorage = () => localStorage.getItem('token');
+const saveTokenToStorage = (token: string) => localStorage.setItem('token', token);
+const removeTokenFromStorage = () => localStorage.removeItem('token');
 
-  const [user, setUser] = useState<string | null>(() => {
-    const savedToken = localStorage.getItem('token');
-    if (!savedToken) return null;
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {  
+  
+  // Инициализируем токен из localStorage
+  const [token, setToken] = useState (getTokenFromStorage());
+  
+  // Инициализируем пользователя из токена, если он есть и валиден
+
+  // TODO: отдельный useState для имени пользователя не нужен?
+  const [username, setUsername] = useState (() => {
+    
+    if (!token) return null;
     try {
-      const decoded = jwtDecode<JwtPayload>(savedToken);
+      const decoded = jwtDecode<JwtPayload>(token);
       if (decoded.exp * 1000 < Date.now()) {
-        localStorage.removeItem('token');
+        removeTokenFromStorage();
         return null;
       }
       return decoded.name;
-    } catch {
+    }
+    catch (err) {
+      console.warn('Invalid token', err);
       return null;
     }
   });
-
-  // --- helpers --------------------------------------------------------------
   
-  // Сохраняет токен и пользователя в localStorage и state
+  // Сохраняем токен и пользователя в localStorage и state
   const persist = (newToken: string) => {
-    localStorage.setItem('token', newToken);
+    saveTokenToStorage(newToken);
     setToken(newToken);
     const decoded = jwtDecode<JwtPayload>(newToken);
-    setUser(decoded.name);
+    setUsername(decoded.name);
   };
 
   // --- API ------------------------------------------------------------------
@@ -80,15 +86,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Выход пользователя
   const logout = () => {
-    localStorage.removeItem("token");
+    removeTokenFromStorage();
     setToken(null);
-    setUser(null);
+    setUsername(null);
   };
 
   // Мемоизация значения контекста
   const value = useMemo<AuthContextValue>(
-    () => ({ token, user, login, register, logout }),
-    [token, user]
+    () => ({ token, username: username, login, register, logout }),
+    [token, username]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
