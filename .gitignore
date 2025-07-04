@@ -40,6 +40,8 @@ dist/
 Thumbs.db
 
 # ASP.NET Core
+appsettings.json
+appsettings.Local.json
 bin/
 obj/
 *.userprefs
