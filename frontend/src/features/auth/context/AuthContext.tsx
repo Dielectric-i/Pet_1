@@ -1,7 +1,7 @@
 import { createContext, useContext, useMemo, useState } from 'react';
 import { jwtDecode } from 'jwt-decode';
-import { request } from '../../../shared/api/request';
-
+import { authLogin, authRegister } from '../services/authApi';
+ 
 type JwtPayload = {
   exp: number; // время истечения токена в секундах
   name: string; // имя пользователя
@@ -29,7 +29,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [token, setToken] = useState (getTokenFromStorage());
   
   // Инициализируем пользователя из токена, если он есть и валиден
-
   // TODO: отдельный useState для имени пользователя не нужен?
   const [username, setUsername] = useState (() => {
     
@@ -57,29 +56,29 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   // --- API ------------------------------------------------------------------
-  // Вход пользователя
-  const login = async (username: string, password: string) => {
+  // Авторизация пользователя
+  const login = async (username: string, password: string): Promise<boolean> => {
     try {
-      const data = await request<{ token: string }>(`/auth/login`, {
-        method: 'POST',
-        body: JSON.stringify({ username, password }),
-      });
+      const data = await authLogin ({ username, password });
       persist(data.token);
+
       return true;
-    } catch {
+    }
+    catch {
+
       return false;
     }
   };
-
+  
   // Регистрация пользователя
-  const register = async ( username: string, password: string ): Promise<boolean> => {
+  const register = async (username, password): Promise<boolean> => {
     try {
-      await request(`/auth/register`, {
-        method: "POST",
-        body: JSON.stringify({ username, password }),
-      });
-      return await login(username, password); // auto‑login after sign‑up
-    } catch {
+      await authRegister({ username, password });
+    
+      return await login(username, password);
+    }
+    catch {
+    
       return false;
     }
   };
@@ -93,7 +92,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Мемоизация значения контекста
   const value = useMemo<AuthContextValue>(
-    () => ({ token, username: username, login, register, logout }),
+    () => ({ token, username, login, register, logout }),
     [token, username]
   );
 
@@ -104,5 +103,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 export const useAuth = () => {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error("useAuth must be used within <AuthProvider>");
+
   return ctx;
 };
