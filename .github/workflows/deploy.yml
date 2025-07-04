@@ -13,6 +13,11 @@ jobs:
   build-and-deploy:
     # Используем последнюю версию Ubuntu для выполнения задач.
     runs-on: ubuntu-latest
+    # Переменные окружения
+    env:
+      # Переменные для подключения к базе данных и JWT.
+      CONNECTIONSTRINGS__DEFAULT: ${{ secrets.PG_CONN }}
+      JWT__KEY: ${{ secrets.JWT_KEY }}
 
     # Шаги, которые выполняются последовательно.
     steps:
