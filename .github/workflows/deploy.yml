@@ -71,8 +71,8 @@ jobs:
 
             echo ">>> create .env file"
             cat > ~/Repo/Pet_1/.env <<'EOF'
-            CONNECTIONSTRINGS__DEFAULT=${{ secrets.PG_CONN }}
-            JWT_KEY=${{ secrets.JWT_KEY }}
+            CONNECTIONSTRINGS__DEFAULT=
+            JWT_KEY=
             EOF
 
             echo ">>> docker compose pull"
