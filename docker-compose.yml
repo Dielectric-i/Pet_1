@@ -19,7 +19,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ConnectionStrings__Default=${CONNECTIONSTRINGS__DEFAULT}
-      - JWT__Key=${JWT__KEY}
+      - JWT__KEY=${JWT__KEY}
     ports: [5000:5000]
     networks: [petnet]
     depends_on: [db]
