@@ -74,6 +74,7 @@ jobs:
             CONNECTIONSTRINGS__DEFAULT=
             JWT_KEY=
             EOF
+            echo "Done!"
 
             echo ">>> docker compose pull"
             docker compose pull
