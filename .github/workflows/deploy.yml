@@ -58,6 +58,7 @@ jobs:
           CONNECTIONSTRINGS__DEFAULT: ${{ secrets.PG_CONN }}
           JWT__KEY: ${{ secrets.JWT_KEY }}
         with:
+          envs: CONNECTIONSTRINGS__DEFAULT, JWT__KEY
           host: ${{ secrets.VPS_SSH_HOST }}
           username: ${{ secrets.VPS_SSH_USERNAME }}
           key: ${{ secrets.VPS_SSH_SECRET }}
