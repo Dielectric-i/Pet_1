@@ -83,4 +83,4 @@ jobs:
             docker compose pull
 
             echo ">>> docker compose up"
-            docker compose up --build -d
+            docker compose up -d
