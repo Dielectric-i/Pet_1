@@ -54,12 +54,21 @@ jobs:
       # 5. Деплоим на домашний сервер через SSH.
       - name: Deploy to VPS
         uses: appleboy/ssh-action@v1.2.0
+        env:
+          CONNECTIONSTRINGS__DEFAULT: ${{ secrets.PG_CONN }}
+          JWT__KEY: ${{ secrets.JWT_KEY }}
         with:
           host: ${{ secrets.VPS_SSH_HOST }}
           username: ${{ secrets.VPS_SSH_USERNAME }}
           key: ${{ secrets.VPS_SSH_SECRET }}
           port: ${{ secrets.VPS_SSH_PORT }}
           script: |
+            echo ">>> set -e"
+            set -e
+
+            echo ">>> CONN is $CONNECTIONSTRINGS__DEFAULT"
+            echo ">>> JWT is $JWT__KEY"
+
             echo ">>> cd ~/Repo/Pet_1"
             cd ~/Repo/Pet_1
 
@@ -69,11 +78,11 @@ jobs:
             echo ">>> git pull"
             git pull || echo "(git pull failed)"
 
-            echo ">>> create .env file"
-            cat > ~/Repo/Pet_1/.env <<EOF
-            CONNECTIONSTRINGS__DEFAULT=${{ secrets.PG_CONN }}
-            JWT_KEY=${{ secrets.JWT_KEY }}
-            EOF
+            # echo ">>> create .env file"
+            # cat > ~/Repo/Pet_1/.env <<EOF
+            # CONNECTIONSTRINGS__DEFAULT=${{ secrets.PG_CONN }}
+            # JWT_KEY=${{ secrets.JWT_KEY }}
+            # EOF
 
             echo ">>> docker compose pull"
             docker compose pull
