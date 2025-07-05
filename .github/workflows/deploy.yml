@@ -69,6 +69,7 @@ jobs:
             echo ">>> git pull"
             git pull || echo "(git pull failed)"
 
+            echo ">>> create .env file"
             cat > ~/Repo/Pet_1/.env <<'EOF'
             CONNECTIONSTRINGS__DEFAULT=${{ secrets.PG_CONN }}
             JWT_KEY=${{ secrets.JWT_KEY }}
