@@ -4,6 +4,10 @@ services:
   ############################
   db:
     image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: petuser
+      POSTGRES_PASSWORD: petpass
+      POSTGRES_DB: petdb
     restart: unless-stopped
     volumes: [db-data:/var/lib/postgresql/data]
     ports: [5432:5432]

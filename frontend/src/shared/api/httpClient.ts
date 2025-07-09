@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 // TODO: вынести в .env
-const baseURL = 'http://localhost:5000';
+// const baseURL = 'http://localhost:5000';
+const baseURL = '';
 
 export const httpClient = axios.create({
   baseURL,
