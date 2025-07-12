@@ -8,10 +8,16 @@ services:
       POSTGRES_USER: petuser
       POSTGRES_PASSWORD: petpass
       POSTGRES_DB: petdb
-    restart: unless-stopped
+    # restart: unless-stopped
     volumes: [db-data:/var/lib/postgresql/data]
     ports: [5432:5432]
     networks: [petnet]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
   #######################################################
   #  Backend (.NET 9)                                   #
   #######################################################
@@ -26,8 +32,15 @@ services:
       - JWT__KEY=${JWT__KEY}
     ports: [5000:5000]
     networks: [petnet]
-    depends_on: [db]
-
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5000/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
   #######################################################
   #  Frontend (React + TS)                              #
   #######################################################
@@ -36,9 +49,11 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    depends_on: [backend]
     ports: [3000:80]              # host:container
     networks: [petnet]
+    depends_on:
+      backend:
+        condition: service_healthy
 
 networks:
   petnet:
