@@ -6,7 +6,7 @@ on:
   push:
     branches:
       - main
-      - testDeploy
+      - test-deploy
 
 # Задачи (jobs), которые выполняет пайплайн.
 jobs:
@@ -65,23 +65,17 @@ jobs:
           key: ${{ secrets.VPS_SSH_SECRET }}
           port: ${{ secrets.VPS_SSH_PORT }}
           script: |
-            echo ">>> set -e"
-            set -e
+            set -exuo pipefail
 
-            echo ">>> CONN is $CONNECTIONSTRINGS__DEFAULT"
-            echo ">>> JWT is $JWT__KEY"
+            echo ">>> CONN is ${CONNECTIONSTRINGS__DEFAULT}"
+            echo ">>> JWT is ${JWT__KEY}"
 
-            echo ">>> cd ~/Repo/Pet_1"
             cd ~/Repo/Pet_1
 
-            echo ">>> docker compose down"
-            docker compose down
+            docker compose down  || echo "(docker compose down failed)"
 
-            echo ">>> git pull"
             git pull || echo "(git pull failed)"
 
-            # echo ">>> docker compose pull"
             # docker compose pull
 
-            echo ">>> docker compose up"
-            docker compose up --build -d
+            docker compose up --build -d --wait
