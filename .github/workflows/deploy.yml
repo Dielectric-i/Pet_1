@@ -63,13 +63,16 @@ jobs:
       #     docker push ${{ secrets.DOCKER_USERNAME }}/pet1-frontend:latest
 
       # 5. Деплоим на домашний сервер через SSH.
-      - name: Deploy to VPS
+      - name: Deploy to MyServer
         uses: appleboy/ssh-action@v1.2.0
         env:
           CONNECTIONSTRINGS__DEFAULT: ${{ secrets.PG_CONN }}
           JWT__KEY: ${{ secrets.JWT_KEY }}
+          PoSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
         with:
-          envs: CONNECTIONSTRINGS__DEFAULT,JWT__KEY
+          envs: CONNECTIONSTRINGS__DEFAULT,JWT__KEY,POSTGRES_USER,POSTGRES_PASSWORD,POSTGRES_DB
           host: ${{ secrets.VPS_SSH_HOST }}
           username: ${{ secrets.VPS_SSH_USERNAME }}
           key: ${{ secrets.VPS_SSH_SECRET }}
