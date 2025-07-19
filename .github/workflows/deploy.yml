@@ -16,7 +16,6 @@ jobs:
     runs-on: ubuntu-latest
     # Переменные окружения
     env:
-      # Переменные для подключения к базе данных и JWT.
       CONNECTIONSTRINGS__DEFAULT: ${{ secrets.PG_CONN }}
       JWT__KEY: ${{ secrets.JWT_KEY }}
       POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
@@ -25,7 +24,8 @@ jobs:
       
     # Шаги, которые выполняются последовательно.
     steps:
-      - name: check env
+      # 0. Проверяем, что переменные окружения установлены.
+      - name: Check environment variables
         run: |
           echo "CONNECTIONSTRINGS__DEFAULT=${{ secrets.PG_CONN }}"
           echo "JWT__KEY=${{ secrets.JWT_KEY }}"
@@ -36,7 +36,7 @@ jobs:
       # - name: Checkout code
       #   uses: actions/checkout@v4
 
-      # # 2 Логинимся в Docker Hub, используя секреты из GitHub.
+      # # 2 Логинимся в Docker Hub
       # - name: Login to Docker Hub
       #   uses: docker/login-action@v3
       #   with:
@@ -65,14 +65,8 @@ jobs:
       # 5. Деплоим на домашний сервер через SSH.
       - name: Deploy to MyServer
         uses: appleboy/ssh-action@v1.2.0
-        env:
-          CONNECTIONSTRINGS__DEFAULT: ${{ secrets.PG_CONN }}
-          JWT__KEY: ${{ secrets.JWT_KEY }}
-          PoSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
         with:
-          envs: CONNECTIONSTRINGS__DEFAULT,JWT__KEY,POSTGRES_USER,POSTGRES_PASSWORD,POSTGRES_DB
+          envs: POSTGRES_USER,POSTGRES_PASSWORD,POSTGRES_DB,CONNECTIONSTRINGS__DEFAULT,JWT__KEY
           host: ${{ secrets.VPS_SSH_HOST }}
           username: ${{ secrets.VPS_SSH_USERNAME }}
           key: ${{ secrets.VPS_SSH_SECRET }}
@@ -80,8 +74,13 @@ jobs:
           script: |
             set -exuo pipefail
 
-            echo ">>> CONN is ${CONNECTIONSTRINGS__DEFAULT}"
-            echo ">>> JWT is ${JWT__KEY}"
+            cat >~/Repo/Pet_1/.env <<EOF
+            POSTGRES_USER=${POSTGRES_USER}
+            POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+            POSTGRES_DB=${POSTGRES_DB}
+            CONNECTIONSTRINGS__DEFAULT="${CONNECTIONSTRINGS__DEFAULT}"
+            JWT__KEY="${JWT__KEY}"
+            EOF
 
             cd ~/Repo/Pet_1
 
@@ -92,3 +91,4 @@ jobs:
             # docker compose pull
 
             docker compose up --build -d --wait
+          

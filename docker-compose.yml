@@ -3,17 +3,13 @@ services:
   #  Database (PostgreSQL)   #
   ############################
   db:
+    env_file: .env
     image: postgres:16-alpine
-    environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB}
-    # restart: unless-stopped
     volumes: [db-data:/var/lib/postgresql/data]
     ports: [5432:5432]
     networks: [petnet]
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -22,14 +18,11 @@ services:
   #  Backend (.NET 9)                                   #
   #######################################################
   backend:
+    env_file: .env
     image: dielectrici/pet1-backend:latest
     build:
       context: ./backend
       dockerfile: Dockerfile
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Production
-      - ConnectionStrings__Default=${CONNECTIONSTRINGS__DEFAULT}
-      - JWT__KEY=${JWT__KEY}
     ports: [5000:5000]
     networks: [petnet]
     depends_on:
