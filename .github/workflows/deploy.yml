@@ -19,7 +19,6 @@ jobs:
       # Переменные для подключения к базе данных и JWT.
       CONNECTIONSTRINGS__DEFAULT: ${{ secrets.PG_CONN }}
       JWT__KEY: ${{ secrets.JWT_KEY }}
-
       POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
       POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
       POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
