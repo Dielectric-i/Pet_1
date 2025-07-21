@@ -20,9 +20,6 @@ services:
   backend:
     env_file: .env
     image: dielectrici/pet1-backend:latest
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
     ports: [5000:5000]
     networks: [petnet]
     depends_on:
@@ -39,9 +36,6 @@ services:
   #######################################################
   frontend:
     image: dielectrici/pet1-frontend:latest
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
     ports: [3000:80]              # host:container
     networks: [petnet]
     depends_on:
