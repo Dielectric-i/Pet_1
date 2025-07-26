@@ -2,14 +2,19 @@ services:
   ############################
   #  Database (PostgreSQL)   #
   ############################
+  loki:
+    image: grafana/loki:latest
+    ports: [ 3100:3100 ]
+    command: -config.file=/etc/loki/local-config.yaml
+    networks: [ petnet ]
   db:
     env_file: .env
     image: postgres:16-alpine
-    volumes: [db-data:/var/lib/postgresql/data]
-    ports: [5432:5432]
-    networks: [petnet]
+    volumes: [ db-data:/var/lib/postgresql/data ]
+    ports: [ 5432:5432 ]
+    networks: [ petnet ]
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+      test: [ "CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB" ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -20,13 +25,13 @@ services:
   backend:
     env_file: .env
     image: dielectrici/pet1-backend:latest
-    ports: [5000:5000]
-    networks: [petnet]
+    ports: [ 5000:5000 ]
+    networks: [ petnet ]
     depends_on:
       db:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:5000/health || exit 1"]
+      test: [ "CMD-SHELL", "curl -f http://localhost:5000/health || exit 1" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -36,8 +41,8 @@ services:
   #######################################################
   frontend:
     image: dielectrici/pet1-frontend:latest
-    ports: [3000:80]              # host:container
-    networks: [petnet]
+    ports: [ 3000:80 ]              # host:container
+    networks: [ petnet ]
     depends_on:
       backend:
         condition: service_healthy
@@ -52,6 +57,7 @@ networks:
     driver_opts:
       com.docker.network.bridge.enable_icc: "true"
       com.docker.network.bridge.enable_ip_masquerade: "false"
+  # loki:
 
 volumes:
   db-data: {}

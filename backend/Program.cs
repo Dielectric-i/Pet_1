@@ -8,14 +8,30 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
+using Serilog.Context;
+using Serilog.Formatting.Compact;
 
 using PetApi.Data;
+using PetApi.Models;
+using Serilog.Sinks.Grafana.Loki;
 
-Log.Logger = new LoggerConfiguration()
-    .WriteTo.Console()
-    .CreateLogger();
 
 var builder = WebApplication.CreateBuilder(args);
+
+// builder.Logging.ClearProviders();
+
+// Log.Logger = new LoggerConfiguration()
+//     .Enrich.FromLogContext()
+//     // .WriteTo.Console(new RenderedCompactJsonFormatter())
+//     .WriteTo.Console()
+//     .CreateLogger();
+
+
+var user = new User { Id = 1, Username = "testuser" }; // Example user for logging
+using (LogContext.PushProperty("UserId", user))
+{
+  Log.Information("User is here!!!!!!!!!!!!!!");
+}
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -44,7 +60,32 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 builder.Services.AddAuthorization();
 
-builder.Host.UseSerilog();
+// builder.Host.UseSerilog();
+
+// Конфигурируем Serilog через делегат
+builder.Host.UseSerilog((ctx, lc) => lc
+    // Настройки из appsettings*.json
+    .ReadFrom.Configuration(ctx.Configuration)
+    // Базовые обогащения
+    .Enrich.FromLogContext()
+    .Enrich.WithEnvironmentUserName()
+    .Enrich.WithMachineName()
+    // Вывод в stdout (подбирает Fluent Bit)
+    .WriteTo.Console()
+    // Прямая отправка в Loki
+    .WriteTo.GrafanaLoki(
+        // uri: ctx.Configuration["LOKI_URL"],
+        // uri: ctx.Configuration["LOKI_URL"],
+        uri: "http://localhost:3100/loki/api/v1/push",
+        credentials: new LokiCredentials
+        {
+          // Login = ctx.Configuration["LOKI_USER"],
+          // Password = ctx.Configuration["LOKI_PASSWORD"]
+          Login = "admin",
+          Password = "admin"
+
+        }));
+        
 builder.WebHost.UseUrls("http://0.0.0.0:5000");
 
 var app = builder.Build();
