@@ -70,8 +70,9 @@ builder.Host.UseSerilog((ctx, lc) => lc
     .Enrich.FromLogContext()
     .Enrich.WithEnvironmentUserName()
     .Enrich.WithMachineName()
-    // Вывод в stdout (подбирает Fluent Bit)
-    .WriteTo.Console()
+    // Вывод в stdout в компактном JSON‑формате (собирается Fluent Bit)
+    .WriteTo.Console(new RenderedCompactJsonFormatter())
+    .Enrich.WithProperty("source", "serilog")
     // Прямая отправка в Loki
     .WriteTo.GrafanaLoki(
         // uri: ctx.Configuration["LOKI_URL"],
