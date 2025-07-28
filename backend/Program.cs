@@ -60,32 +60,32 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 builder.Services.AddAuthorization();
 
-// builder.Host.UseSerilog();
 
 // Конфигурируем Serilog через делегат
-builder.Host.UseSerilog((ctx, lc) => lc
+builder.Host.UseSerilog((ctx, lc) => lc.MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning)
     // Настройки из appsettings*.json
-    .ReadFrom.Configuration(ctx.Configuration)
-    // Базовые обогащения
+    // .ReadFrom.Configuration(ctx.Configuration)
     .Enrich.FromLogContext()
     .Enrich.WithEnvironmentUserName()
     .Enrich.WithMachineName()
     // Вывод в stdout в компактном JSON‑формате (собирается Fluent Bit)
-    .WriteTo.Console(new RenderedCompactJsonFormatter())
+    // .WriteTo.Console(new RenderedCompactJsonFormatter())
+    .WriteTo.Console()
     .Enrich.WithProperty("source", "serilog")
-    // Прямая отправка в Loki
-    .WriteTo.GrafanaLoki(
-        // uri: ctx.Configuration["LOKI_URL"],
-        // uri: ctx.Configuration["LOKI_URL"],
-        uri: "http://localhost:3100/loki/api/v1/push",
-        credentials: new LokiCredentials
-        {
-          // Login = ctx.Configuration["LOKI_USER"],
-          // Password = ctx.Configuration["LOKI_PASSWORD"]
-          Login = "admin",
-          Password = "admin"
+    // // Прямая отправка в Loki
+    // .WriteTo.GrafanaLoki(
+    //     // uri: ctx.Configuration["LOKI_URL"],
+    //     // uri: ctx.Configuration["LOKI_URL"],
+    //     uri: "http://localhost:3100/loki/api/v1/push",
+    //     credentials: new LokiCredentials
+    //     {
+    //       // Login = ctx.Configuration["LOKI_USER"],
+    //       // Password = ctx.Configuration["LOKI_PASSWORD"]
+    //       Login = "admin",
+    //       Password = "admin"
 
-        }));
+    //     })
+        );
         
 builder.WebHost.UseUrls("http://0.0.0.0:5000");
 

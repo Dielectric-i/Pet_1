@@ -1,6 +1,6 @@
 services:
   ############################
-  #  Database (PostgreSQL)   #
+  #      Fluent-bit          #
   ############################
   fluent-bit:
     image: cr.fluentbit.io/fluent/fluent-bit:3.0
@@ -12,11 +12,33 @@ services:
       backend:
           condition: service_healthy
     command: -c /fluent-bit/etc/fluent-bit.conf
+  
+  ############################
+  #          Loki            #
+  ############################
   loki:
     image: grafana/loki:latest
     ports: [ 3100:3100 ]
     command: -config.file=/etc/loki/local-config.yaml
     networks: [ petnet ]
+  
+  ############################
+  #       Grafana            #
+  ############################
+  grafana:
+    env_file: .env
+    image: grafana/grafana:latest
+    ports:
+      - "3001:3000"
+    networks: [ petnet ]
+    depends_on: [ loki ]
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+  
+  ############################
+  #  Database (PostgreSQL)   #
+  ############################
   db:
     env_file: .env
     image: postgres:16-alpine
@@ -29,9 +51,10 @@ services:
       timeout: 5s
       retries: 5
       start_period: 5s
-  #######################################################
-  #  Backend (.NET 9)                                   #
-  #######################################################
+  
+  ############################
+  #    Backend (.NET 9)      #
+  ############################
   backend:
     env_file: .env
     # image: dielectrici/pet1-backend:latest
@@ -48,9 +71,10 @@ services:
       timeout: 5s
       retries: 5
       start_period: 5s
-  #######################################################
-  #  Frontend (React + TS)                              #
-  #######################################################
+
+  ############################
+  #  Frontend (React + TS)   #
+  ############################
   frontend:
     # image: dielectrici/pet1-frontend:latest
     build:
@@ -71,7 +95,7 @@ networks:
     driver_opts:
       com.docker.network.bridge.enable_icc: "true"
       com.docker.network.bridge.enable_ip_masquerade: "false"
-  # loki:
 
 volumes:
-  db-data: {}
+  db-data:
+  grafana-data:
