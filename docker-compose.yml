@@ -3,15 +3,17 @@ services:
   #      Fluent-bit          #
   ############################
   fluent-bit:
-    image: cr.fluentbit.io/fluent/fluent-bit:3.0
+    image: cr.fluentbit.io/fluent/fluent-bit:latest
     volumes:
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
-      - ./fluent-bit/fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./fluent-bit/fluent-bit.yml:/fluent-bit/etc/fluent-bit.yml:ro
+      - ./fluent-bit/parsers.conf:/fluent-bit/etc/parsers.conf:ro
+    command: -c /fluent-bit/etc/fluent-bit.yml
     networks: [ petnet ]
     depends_on:
       backend:
           condition: service_healthy
-    command: -c /fluent-bit/etc/fluent-bit.conf
   
   ############################
   #          Loki            #

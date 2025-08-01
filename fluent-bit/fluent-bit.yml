@@ -1,0 +1,50 @@
+service:
+  log_level: info
+  # parsers_file: /fluent-bit/etc/parsers.conf # опционально, можно определить в секции parsers
+  # flush: 1  # в наносекундах по умолчанию 1
+
+  ####################
+  #    hot reload    #
+  ####################
+  # http_server: true
+  # http_listen: 0.0.0.0
+  # http_port: 2020
+  # hot_reload: on
+  ####################
+pipeline:
+  inputs:
+    - name: tail
+      tag: containers.*
+      path: /var/lib/docker/containers/*/*.log
+      refresh_interval: 10
+      skip_long_lines: true
+      parser: docker        # парсер JSON‑формата Docker
+      path_key: filepath    # сохраняем путь в отдельном ключе
+      read_from_head: false # читаем только новые строки
+
+  filters:
+    # Обогащаются логи на стороне приложения, этот фильтр не нужен.
+    - name: docker
+      match: containers.*
+
+    - name: modify
+      match: containers.*
+      # добавляем ключ `source` (необязательно, но можно)
+      add:
+        source: fluentbit
+
+  outputs:
+    - name: loki
+      match: containers.*
+      host: loki
+      port: 3100
+      labels:
+        job: pet1               # статичная метка для всех потоков
+      label_keys:
+        - service               # значения ключа `service` попадут в метки
+        - source
+      # эти большие поля нам в Loki не нужны – удаляем
+      remove_keys:
+        - attrs
+        - filepath
+      line_format: json

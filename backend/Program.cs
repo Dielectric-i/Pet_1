@@ -68,11 +68,11 @@ builder.Host.UseSerilog((ctx, lc) => lc.MinimumLevel.Override("Microsoft", Seril
     .Enrich.FromLogContext()
     .Enrich.WithEnvironmentUserName()
     .Enrich.WithMachineName()
+    .Enrich.WithProperty("source", "serilog")
     // Вывод в stdout в компактном JSON‑формате (собирается Fluent Bit)
     // .WriteTo.Console(new RenderedCompactJsonFormatter())
-    .WriteTo.Console()
-    .Enrich.WithProperty("source", "serilog")
-    // // Прямая отправка в Loki
+    // .WriteTo.Console()
+    // Прямая отправка в Loki
     // .WriteTo.GrafanaLoki(
     //     // uri: ctx.Configuration["LOKI_URL"],
     //     // uri: ctx.Configuration["LOKI_URL"],
@@ -83,7 +83,6 @@ builder.Host.UseSerilog((ctx, lc) => lc.MinimumLevel.Override("Microsoft", Seril
     //       // Password = ctx.Configuration["LOKI_PASSWORD"]
     //       Login = "admin",
     //       Password = "admin"
-
     //     })
         );
         
