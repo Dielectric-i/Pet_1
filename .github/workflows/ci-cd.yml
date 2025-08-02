@@ -74,7 +74,7 @@ jobs:
 
             cd ~/Repo/Pet_1
 
-            docker compose down  || { echo "(docker compose down failed)"; exit 1; }
+            docker compose down -v  || { echo "(docker compose down failed)"; exit 1; }
 
             git pull || { echo "(git pull failed)"; exit 1; }
 
