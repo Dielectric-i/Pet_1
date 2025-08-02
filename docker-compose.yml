@@ -5,10 +5,9 @@ services:
   fluent-bit:
     image: cr.fluentbit.io/fluent/fluent-bit:latest
     volumes:
-      - /var/lib/docker/containers:/var/lib/docker/containers:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./fluent-bit/fluent-bit.yml:/fluent-bit/etc/fluent-bit.yml:ro
-      - ./fluent-bit/parsers.conf:/fluent-bit/etc/parsers.conf:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro,Z
+      - /var/run/docker.sock:/var/run/docker.sock:ro,Z
+      - ./fluent-bit:/fluent-bit/etc/:ro,Z
     command: -c /fluent-bit/etc/fluent-bit.yml
     networks: [ petnet ]
     depends_on:
@@ -35,8 +34,8 @@ services:
     networks: [ petnet ]
     depends_on: [ loki ]
     volumes:
-      - grafana-data:/var/lib/grafana
-      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - grafana-data:/var/lib/grafana:Z
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:Z
   
   ############################
   #  Database (PostgreSQL)   #
