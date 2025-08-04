@@ -1,22 +1,24 @@
 # fluent-bit.yaml
 service:
-  # Интервал флашинга в секундах (сброс буфера на каждый flush секунд)
   flush: 5
-  # Уровень логирования самого Fluent Bit
   log_level: info
+  parsers_file: /fluent-bit/etc/parsers.yml
 
 pipeline:
   inputs:
-    - name: tail                   # tail-input плагин отслеживает файлы, как `tail -f`
+    - name: tail
       path:
-        - /var/lib/docker/containers/*/*.log   # путь к логам контейнеров
-      # (можно позже добавить parser: docker для чистки JSON)
-      tag: docker_logs             # все метки (tags) для этой группы записей
+        - /var/lib/docker/containers/*/*.log 
+      parser: docker
+  filters:
+    - name: parser
+      match: "*"
+      key_name: log
+      parser: logfmt
+      reserve_data: true
 
   outputs:
     - name: loki
       match: "*"
       host: loki
       port: 3100
-      labels: job=pet1               # статичная метка для всех потоков
-      line_format: json

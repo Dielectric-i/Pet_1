@@ -1,0 +1,12 @@
+# parsers.yml
+parsers:
+  - name: docker
+    format: json
+    time_key: time
+    time_format: '%Y-%m-%dT%H:%M:%S.%L'
+    # Decode_Field_As: escaped log
+    # do_next
+    # Decode_Field_As: json log
+    # time_keep: true
+  - name: logfmt
+    format: logfmt

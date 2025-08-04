@@ -1,4 +1,6 @@
+# docker-compose.yml
 services:
+
   ############################
   #      Fluent-bit          #
   ############################
@@ -8,7 +10,9 @@ services:
       - /var/lib/docker/containers:/var/lib/docker/containers:ro,Z
       - /var/run/docker.sock:/var/run/docker.sock:ro,Z
       - ./fluent-bit:/fluent-bit/etc/:ro,Z
-    command: -c /fluent-bit/etc/fluent-bit.yml
+    command:
+      -c /fluent-bit/etc/fluent-bit.yml
+
     networks: [ petnet ]
     depends_on:
       backend:
