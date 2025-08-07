@@ -5,20 +5,13 @@ service:
   parsers_file: /fluent-bit/etc/parsers.yml
 
 pipeline:
-  inputs:
-    - name: tail
-      path:
-        - /var/lib/docker/containers/*/*.log 
-      parser: docker
-  filters:
-    - name: parser
-      match: "*"
-      key_name: log
-      parser: logfmt
-      reserve_data: true
-
-  outputs:
+  inputs: 
+    - name: forward
+      listen: 0.0.0.0
+      port: 24224
+__  outputs:
     - name: loki
       match: "*"
       host: loki
       port: 3100
+      label_keys: $container_name

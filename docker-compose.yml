@@ -1,4 +1,9 @@
 # docker-compose.yml
+x-logger: &fluentd-driver
+  driver: fluentd
+  options:
+    fluentd-address: "127.0.0.1:24224"
+    fluentd-async: "true"
 services:
 
   ############################
@@ -6,17 +11,15 @@ services:
   ############################
   fluent-bit:
     image: cr.fluentbit.io/fluent/fluent-bit:latest
+    container_name: fluent-bit
     volumes:
-      - /var/lib/docker/containers:/var/lib/docker/containers:ro,Z
-      - /var/run/docker.sock:/var/run/docker.sock:ro,Z
-      - ./fluent-bit:/fluent-bit/etc/:ro,Z
+      - ./fluent-bit:/fluent-bit/etc:ro,Z
     command:
       -c /fluent-bit/etc/fluent-bit.yml
 
     networks: [ petnet ]
-    depends_on:
-      backend:
-          condition: service_healthy
+    ports:
+      - "24224:24224/tcp"
   
   ############################
   #          Loki            #
@@ -26,6 +29,7 @@ services:
     ports: [ 3100:3100 ]
     command: -config.file=/etc/loki/local-config.yaml
     networks: [ petnet ]
+    logging: *fluentd-driver
   
   ############################
   #       Grafana            #
@@ -36,6 +40,7 @@ services:
     ports:
       - "3001:3000"
     networks: [ petnet ]
+    logging: *fluentd-driver
     depends_on: [ loki ]
     volumes:
       - grafana-data:/var/lib/grafana:Z
@@ -50,6 +55,7 @@ services:
     volumes: [ db-data:/var/lib/postgresql/data ]
     ports: [ 5432:5432 ]
     networks: [ petnet ]
+    logging: *fluentd-driver
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB" ]
       interval: 5s
@@ -67,6 +73,7 @@ services:
       context: ./backend
     ports: [ 5000:5000 ]
     networks: [ petnet ]
+    logging: *fluentd-driver
     depends_on:
       db:
         condition: service_healthy
@@ -86,9 +93,10 @@ services:
       context: ./frontend
     ports: [ 3000:80 ]              # host:container
     networks: [ petnet ]
-    depends_on:
-      backend:
-        condition: service_healthy
+    logging: *fluentd-driver
+    # depends_on:
+    #   backend:
+    #     condition: service_healthy
 
 networks:
   petnet:

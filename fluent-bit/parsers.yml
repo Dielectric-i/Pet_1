@@ -4,9 +4,8 @@ parsers:
     format: json
     time_key: time
     time_format: '%Y-%m-%dT%H:%M:%S.%L'
-    # Decode_Field_As: escaped log
-    # do_next
-    # Decode_Field_As: json log
-    # time_keep: true
+    time_keep: true
+    Decode_Field_As: escaped log
+
   - name: logfmt
     format: logfmt
