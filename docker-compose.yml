@@ -94,9 +94,9 @@ services:
     ports: [ 3000:80 ]              # host:container
     networks: [ petnet ]
     logging: *fluentd-driver
-    # depends_on:
-    #   backend:
-    #     condition: service_healthy
+    depends_on:
+      backend:
+        condition: service_healthy
 
 networks:
   petnet:
