@@ -56,9 +56,9 @@ builder.Host.UseSerilog((ctx, lc) => lc.MinimumLevel.Override("Microsoft", Seril
     // Настройки из appsettings*.json
     // .ReadFrom.Configuration(ctx.Configuration)
     .Enrich.FromLogContext()
-    .Enrich.WithEnvironmentUserName()
-    .Enrich.WithMachineName()
-    .Enrich.WithProperty("source", "serilog")
+    // .Enrich.WithEnvironmentUserName()
+    // .Enrich.WithMachineName()
+    // .Enrich.WithProperty("source", "serilog")
     .WriteTo.Console(new RenderedCompactJsonFormatter())
   );
         
@@ -73,11 +73,11 @@ using (var scope = app.Services.CreateScope())
   db.Database.Migrate();
 }
 
-if (app.Environment.IsDevelopment() || app.Environment.IsProduction() || app.Environment.EnvironmentName == "local")
-{
-  app.UseSwagger();
-  app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Pet API v1"));
-}
+// if (app.Environment.IsDevelopment() || app.Environment.IsProduction() || app.Environment.EnvironmentName == "local")
+// {
+//   app.UseSwagger();
+//   app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Pet API v1"));
+// }
 
 app.UseCors();
 app.UseAuthentication();
