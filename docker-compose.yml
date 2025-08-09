@@ -4,6 +4,7 @@ x-logger: &fluentd-driver
   options:
     fluentd-address: "127.0.0.1:24224"
     fluentd-async: "true"
+    labels: "com.docker.compose.project,com.docker.compose.service"
 services:
 
   ############################
@@ -16,8 +17,9 @@ services:
       - ./fluent-bit:/fluent-bit/etc:ro,Z
     command:
       -c /fluent-bit/etc/fluent-bit.yml
-
-    networks: [ petnet ]
+    logging: *fluentd-driver
+    networks:
+      - petnet
     ports:
       - "24224:24224/tcp"
   
@@ -26,21 +28,29 @@ services:
   ############################
   loki:
     image: grafana/loki:latest
-    ports: [ 3100:3100 ]
-    command: -config.file=/etc/loki/local-config.yaml
-    networks: [ petnet ]
+    volumes:
+      - ./loki/:/etc/loki/:ro,Z
+    command:
+      - -config.file=/etc/loki/loki-config.yaml
     logging: *fluentd-driver
-  
+    networks:
+      - petnet
+    ports:
+      - 3100:3100
+
   ############################
   #       Grafana            #
   ############################
   grafana:
     env_file: .env
     image: grafana/grafana:latest
-    ports: ["3001:3000"]
-    networks: [ petnet ]
     logging: *fluentd-driver
-    depends_on: [ loki ]
+    networks:
+      - petnet
+    ports:
+      - "3001:3000"
+    depends_on:
+      - loki
     volumes:
       - grafana-data:/var/lib/grafana:Z
       - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:Z
@@ -51,12 +61,17 @@ services:
   db:
     env_file: .env
     image: postgres:16-alpine
-    volumes: [ db-data:/var/lib/postgresql/data ]
-    ports: [ 5432:5432 ]
-    networks: [ petnet ]
     logging: *fluentd-driver
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - petnet
+    ports:
+      - 5432:5432
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB" ]
+      test: 
+        - "CMD-SHELL"
+        - "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"
       interval: 5s
       timeout: 5s
       retries: 5
@@ -70,9 +85,11 @@ services:
     image: dielectrici/pet1-backend:latest
     build:
       context: ./backend
-    ports: [ 5000:5000 ]
-    networks: [ petnet ]
     logging: *fluentd-driver
+    networks:
+      - petnet
+    ports:
+      - 5000:5000
     depends_on:
       db:
         condition: service_healthy
@@ -90,9 +107,9 @@ services:
     image: dielectrici/pet1-frontend:latest
     build:
       context: ./frontend
-    ports: [ 3000:80 ]              # host:container
-    networks: [ petnet ]
     logging: *fluentd-driver
+    networks: [ petnet ]
+    ports: [ 3000:80 ]              # host:container
     depends_on:
       backend:
         condition: service_healthy

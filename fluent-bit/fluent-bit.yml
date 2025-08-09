@@ -11,11 +11,17 @@ pipeline:
     - name: forward
       listen: 0.0.0.0
       port: 24224
-
+  filters:
+    - name: modify
+      match: "*"
+      Rename:
+        - com.docker.compose.service service_name
+        - com.docker.compose.project project_name
   outputs:
     - name: loki
       match: "*"
       host: loki
       port: 3100
-      remove_keys: container_id #, source
-      label_keys: $container_name
+      labels: service_name=$service_name, project_name=$project_name
+      remove_keys: container_id, source, container_name
+      # line_format: json
