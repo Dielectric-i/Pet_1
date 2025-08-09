@@ -1,17 +1,21 @@
 # fluent-bit.yaml
 service:
+
   flush: 5
   log_level: info
   parsers_file: /fluent-bit/etc/parsers.yml
 
 pipeline:
+
   inputs: 
     - name: forward
       listen: 0.0.0.0
       port: 24224
+
   outputs:
     - name: loki
       match: "*"
       host: loki
       port: 3100
+      remove_keys: container_id #, source
       label_keys: $container_name

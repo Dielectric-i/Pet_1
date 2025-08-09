@@ -37,8 +37,7 @@ services:
   grafana:
     env_file: .env
     image: grafana/grafana:latest
-    ports:
-      - "3001:3000"
+    ports: ["3001:3000"]
     networks: [ petnet ]
     logging: *fluentd-driver
     depends_on: [ loki ]

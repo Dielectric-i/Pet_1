@@ -13,19 +13,9 @@ using Serilog.Formatting.Compact;
 
 using PetApi.Data;
 using PetApi.Models;
-using Serilog.Sinks.Grafana.Loki;
 
 
 var builder = WebApplication.CreateBuilder(args);
-
-// builder.Logging.ClearProviders();
-
-// Log.Logger = new LoggerConfiguration()
-//     .Enrich.FromLogContext()
-//     // .WriteTo.Console(new RenderedCompactJsonFormatter())
-//     .WriteTo.Console()
-//     .CreateLogger();
-
 
 var user = new User { Id = 1, Username = "testuser" }; // Example user for logging
 using (LogContext.PushProperty("UserId", user))
@@ -69,22 +59,8 @@ builder.Host.UseSerilog((ctx, lc) => lc.MinimumLevel.Override("Microsoft", Seril
     .Enrich.WithEnvironmentUserName()
     .Enrich.WithMachineName()
     .Enrich.WithProperty("source", "serilog")
-    // Вывод в stdout в компактном JSON‑формате (собирается Fluent Bit)
-    // .WriteTo.Console(new RenderedCompactJsonFormatter())
-    // .WriteTo.Console()
-    // Прямая отправка в Loki
-    // .WriteTo.GrafanaLoki(
-    //     // uri: ctx.Configuration["LOKI_URL"],
-    //     // uri: ctx.Configuration["LOKI_URL"],
-    //     uri: "http://localhost:3100/loki/api/v1/push",
-    //     credentials: new LokiCredentials
-    //     {
-    //       // Login = ctx.Configuration["LOKI_USER"],
-    //       // Password = ctx.Configuration["LOKI_PASSWORD"]
-    //       Login = "admin",
-    //       Password = "admin"
-    //     })
-        );
+    .WriteTo.Console(new RenderedCompactJsonFormatter())
+  );
         
 builder.WebHost.UseUrls("http://0.0.0.0:5000");
 
@@ -109,4 +85,3 @@ app.UseAuthorization();
 app.MapControllers();
 app.UseSerilogRequestLogging();
 app.Run();
-// app.MapGet("/health", () => Results.Ok("Backend is working"));
