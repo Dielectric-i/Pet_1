@@ -11,17 +11,52 @@ pipeline:
     - name: forward
       listen: 0.0.0.0
       port: 24224
+
   filters:
     - name: modify
       match: "*"
       Rename:
         - com.docker.compose.service service_name
         - com.docker.compose.project project_name
+
+    - name: parser
+      match: "*"
+      key_name: log
+      parser: serilog_compact
+      reserve_data: On
+
+    - name: modify
+      match: "*"
+      Rename:
+        - '@m message'
+        - '@i event_id'
+        - "@tr trace_id"
+        - "@sp span_id"
+        - RequestMethod method
+        - RequestPath route
+        - StatusCode status
+
+    # Если @l есть переименовываем в level
+    - name: modify
+      match: "*"
+      Condition: Key_Exists @l
+      Rename:
+        - '@l level'
+
+    # Если level отсутствует — выставляем Information
+    - name: modify
+      match: "*"
+      Condition: Key_Does_Not_Exist level
+      Set: level Information
+
+
   outputs:
     - name: loki
       match: "*"
       host: loki
       port: 3100
-      labels: service_name=$service_name, project_name=$project_name
+      labels: service_name=$service_name, project_name=$project_name, level=$level, status=$status, method=$method
       remove_keys: container_id, source, container_name
-      # line_format: json
+      
+    - name: stdout
+      match: "*"

@@ -17,7 +17,7 @@ services:
       - ./fluent-bit:/fluent-bit/etc:ro,Z
     command:
       -c /fluent-bit/etc/fluent-bit.yml
-    logging: *fluentd-driver
+    # logging: *fluentd-driver
     networks:
       - petnet
     ports:

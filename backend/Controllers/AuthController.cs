@@ -22,10 +22,10 @@ public class AuthController(AppDbContext db, IConfiguration cfg) : ControllerBas
   [HttpPost("register")]
   public async Task<IActionResult> Register([FromBody] Credentials dto)
   {
-    if (await db.Users.AnyAsync(u => u.Username == dto.Username))
+    if (await db.Users.AnyAsync(u => u.userName == dto.Username))
       return Conflict(new { error = "User exists" }); 
     CreatePasswordHash(dto.Password, out var hash, out var salt);
-    var user = new User { Username = dto.Username, PasswordHash = hash, PasswordSalt = salt };
+    var user = new User { userName = dto.Username, PasswordHash = hash, PasswordSalt = salt };
     db.Add(user);
     await db.SaveChangesAsync();
     return Ok();
@@ -34,7 +34,7 @@ public class AuthController(AppDbContext db, IConfiguration cfg) : ControllerBas
   [HttpPost("login")]
   public async Task<IActionResult> Login([FromBody] Credentials dto)
   {
-    var user = await db.Users.SingleOrDefaultAsync(u => u.Username == dto.Username);
+    var user = await db.Users.SingleOrDefaultAsync(u => u.userName == dto.Username);
     if (user is null || !Verify(dto.Password, user.PasswordHash, user.PasswordSalt))
       return Unauthorized();
     var token = GenerateToken(user);
@@ -47,7 +47,7 @@ public class AuthController(AppDbContext db, IConfiguration cfg) : ControllerBas
       new SymmetricSecurityKey(Encoding.UTF8.GetBytes(cfg["Jwt:Key"]!)),
       SecurityAlgorithms.HmacSha256);
 
-    var claims = new[] { new Claim("name", user.Username) };
+    var claims = new[] { new Claim("name", user.userName) };
     var jwt = new JwtSecurityToken(
       issuer: cfg["Jwt:Issuer"],
       audience: null,

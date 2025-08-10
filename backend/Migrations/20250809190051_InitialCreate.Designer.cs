@@ -11,7 +11,7 @@ using PetApi.Data;
 namespace backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250518193424_InitialCreate")]
+    [Migration("20250809190051_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -38,7 +38,7 @@ namespace backend.Migrations
                     b.Property<byte[]>("PasswordSalt")
                         .HasColumnType("bytea");
 
-                    b.Property<string>("Username")
+                    b.Property<string>("userName")
                         .HasColumnType("text");
 
                     b.HasKey("Id");

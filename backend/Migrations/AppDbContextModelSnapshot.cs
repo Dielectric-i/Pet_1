@@ -35,7 +35,7 @@ namespace backend.Migrations
                     b.Property<byte[]>("PasswordSalt")
                         .HasColumnType("bytea");
 
-                    b.Property<string>("Username")
+                    b.Property<string>("userName")
                         .HasColumnType("text");
 
                     b.HasKey("Id");

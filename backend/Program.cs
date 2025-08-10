@@ -17,52 +17,45 @@ using PetApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var user = new User { Id = 1, Username = "testuser" }; // Example user for logging
-using (LogContext.PushProperty("UserId", user))
+var user = new User { Id = 1, userName = "testUser" }; // Example user for logging
+using (LogContext.PushProperty("userName", user.userName))
+using (LogContext.PushProperty("userId", user.Id))
 {
-  Log.Information("User is here!!!!!!!!!!!!!!");
+  Log.Information("User arrived");
 }
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddCors(options =>
-{
-    options.AddDefaultPolicy(policy =>
-    {
-        policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
-    });
+builder.Services.AddCors(o => o.AddDefaultPolicy(p => p.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
+builder.Services.AddDbContext<AppDbContext>(opt => opt.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options => {
+  options.TokenValidationParameters = new TokenValidationParameters
+  {
+    ValidateIssuer = true,
+    ValidateAudience = false,
+    ValidateIssuerSigningKey = true,
+    ValidIssuer = builder.Configuration["Jwt:Issuer"],
+    IssuerSigningKey = new SymmetricSecurityKey(
+      Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+  };
 });
-builder.Services.AddDbContext<AppDbContext>(opt =>
-    opt.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = false,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
-        };
-    });
 builder.Services.AddAuthorization();
 
 
-// Конфигурируем Serilog через делегат
-builder.Host.UseSerilog((ctx, lc) => lc.MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning)
-    // Настройки из appsettings*.json
-    // .ReadFrom.Configuration(ctx.Configuration)
-    .WriteTo.Console(new RenderedCompactJsonFormatter())
-  );
+builder.Host.UseSerilog((ctx, lc) => lc
+  .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning)
+  .Enrich.FromLogContext()
+  // Настройки из appsettings*.json
+  // .ReadFrom.Configuration(ctx.Configuration)
+  .WriteTo.Console(new RenderedCompactJsonFormatter())
+);
         
 builder.WebHost.UseUrls("http://0.0.0.0:5000");
 
 var app = builder.Build();
 
-// ⬇⬇⬇ Автоматическое применение миграций при старте
+// Применение миграций при старте
 using (var scope = app.Services.CreateScope())
 {
   var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();

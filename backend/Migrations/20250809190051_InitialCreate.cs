@@ -17,7 +17,7 @@ namespace backend.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Username = table.Column<string>(type: "text", nullable: true),
+                    userName = table.Column<string>(type: "text", nullable: true),
                     PasswordHash = table.Column<byte[]>(type: "bytea", nullable: true),
                     PasswordSalt = table.Column<byte[]>(type: "bytea", nullable: true)
                 },
