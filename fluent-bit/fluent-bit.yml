@@ -20,13 +20,13 @@ pipeline:
         - com.docker.compose.project project_name
 
     - name: parser
-      match: "*"
+      match: "svc.*-backend-*"
       key_name: log
       parser: serilog_compact
       reserve_data: On
 
     - name: modify
-      match: "*"
+      match: "svc.*-backend-*"
       Rename:
         - '@m message'
         - '@i event_id'
@@ -36,18 +36,18 @@ pipeline:
         - RequestPath route
         - StatusCode status
 
-    # Если @l есть переименовываем в level
-    - name: modify
-      match: "*"
-      Condition: Key_Exists @l
-      Rename:
-        - '@l level'
+    # # Если @l есть переименовываем в level
+    # - name: modify
+    #   match: "svc.*-backend-*"
+    #   Condition: Key_Exists @l
+    #   Rename:
+    #     - '@l level'
 
-    # Если level отсутствует — выставляем Information
-    - name: modify
-      match: "*"
-      Condition: Key_Does_Not_Exist level
-      Set: level Information
+    # # Если level отсутствует — выставляем Information
+    # - name: modify
+    #   match: "svc.*-backend-*"
+    #   Condition: Key_Does_Not_Exist level
+    #   Set: level Information
 
 
   outputs:
