@@ -1,20 +1,12 @@
-# Название пайплайна, отображается в интерфейсе GitHub Actions.
 name: CI/CD Pipeline
 
-# Триггеры: пайплайн срабатывает при пуше в ветку main.
 on:
   push:
-    branches:
-      - main
-      - test-deploy
+    branches: [ main ]
 
-# Задачи (jobs), которые выполняет пайплайн.
 jobs:
-  # Задача для сборки и деплоя.
   build-and-deploy:
-    # Используем последнюю версию Ubuntu для выполнения задач.
     runs-on: ubuntu-latest
-    # Переменные окружения
     env:
       CONNECTIONSTRINGS__DEFAULT: ${{ secrets.PG_CONN }}
       JWT__KEY: ${{ secrets.JWT_KEY }}
@@ -22,7 +14,6 @@ jobs:
       POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
       POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
       
-    # Шаги, которые выполняются последовательно.
     steps:
       # 1. Клонируем репозиторий на машину GitHub Actions.
       - name: Checkout code
