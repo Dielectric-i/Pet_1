@@ -18,7 +18,10 @@ pipeline:
       Rename:
         - com.docker.compose.service service_name
         - com.docker.compose.project project_name
-
+    
+    ########################
+    #  Backend (Serilog)   #
+    ########################
     - name: parser
       match: "svc.*-backend-*"
       key_name: log
@@ -36,19 +39,73 @@ pipeline:
         - RequestPath route
         - StatusCode status
 
-    # # Если @l есть переименовываем в level
-    # - name: modify
-    #   match: "svc.*-backend-*"
-    #   Condition: Key_Exists @l
-    #   Rename:
-    #     - '@l level'
+    ########################
+    #    DB (Postgres)     #
+    ########################
+    - name: parser
+      match: "svc.*-db-*"
+      key_name: log
+      parser: postgres_log
+      reserve_data: On
 
-    # # Если level отсутствует — выставляем Information
-    # - name: modify
-    #   match: "svc.*-backend-*"
-    #   Condition: Key_Does_Not_Exist level
-    #   Set: level Information
+    # Приводим уровень к общему полю level
+    - name: modify
+      match: "svc.*-db-*"
+      Rename:
+        - pg_level level
 
+    ########################
+    #    Frontend(Nginx)   #
+    ########################
+    - name: parser
+      match: "svc.*-frontend-*"
+      key_name: log
+      parser: nginx
+      reserve_data: On
+
+    - name: modify
+      match: "svc.*-frontend-*"
+      Rename:
+        - path route
+
+    ########################
+    #      Grafana         #
+    ########################
+
+    - name: parser
+      match: "svc.*-grafana-*"
+      key_name: log
+      parser: logfmt
+      reserve_data: On
+
+    - name: modify
+      match: "svc.*-grafana-*"
+      Rename:
+        - msg message
+
+    ########################
+    #      Loki            #
+    ########################
+    - name: parser
+      match: "svc.*-loki-*"
+      key_name: log
+      parser: logfmt
+      reserve_data: On
+
+    # Привести к единому message
+    - name: modify
+      match: "svc.*-loki-*"
+      Rename:
+        - msg message
+
+    ########################
+    #      Fluent Bit      #
+    ########################
+    - name: parser
+      match: "svc.*-fluent-bit-*"
+      key_name: log
+      parser: fluentbit_internal
+      reserve_data: On
 
   outputs:
     - name: loki
@@ -58,5 +115,5 @@ pipeline:
       labels: service_name=$service_name, project_name=$project_name, level=$level, status=$status, method=$method
       remove_keys: container_id, source, container_name
       
-    - name: stdout
-      match: "*"
+    # - name: stdout
+    #   match: "*"
