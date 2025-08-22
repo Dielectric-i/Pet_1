@@ -27,3 +27,9 @@ parsers:
     time_key: time
     time_format: '%Y/%m/%d %H:%M:%S'
     time_keep: On
+
+  - name: loki_parser
+    format: logfmt
+    time_key: ts
+    # time_format: '%Y/%m/%d %H:%M:%S'
+    # time_keep: On

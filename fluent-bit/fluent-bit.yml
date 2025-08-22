@@ -89,7 +89,7 @@ pipeline:
     - name: parser
       match: "svc.*-loki-*"
       key_name: log
-      parser: logfmt
+      parser: loki_parser
       reserve_data: On
 
     # Привести к единому message

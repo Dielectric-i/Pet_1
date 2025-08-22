@@ -13,6 +13,10 @@ using System.Threading.Tasks;
 using PetApi.Models;
 using PetApi.Data;
 
+using Microsoft.AspNetCore.Authorization;          // [Authorize]
+// using System.Security.Claims;
+using Microsoft.AspNetCore.Http;                      // ClaimsPrincipal
+
 namespace PetApi.Controllers;
 
 [ApiController]
@@ -23,7 +27,7 @@ public class AuthController(AppDbContext db, IConfiguration cfg) : ControllerBas
   public async Task<IActionResult> Register([FromBody] Credentials dto)
   {
     if (await db.Users.AnyAsync(u => u.userName == dto.Username))
-      return Conflict(new { error = "User exists" }); 
+      return Conflict(new { error = "User exists" });
     CreatePasswordHash(dto.Password, out var hash, out var salt);
     var user = new User { userName = dto.Username, PasswordHash = hash, PasswordSalt = salt };
     db.Add(user);
@@ -31,6 +35,22 @@ public class AuthController(AppDbContext db, IConfiguration cfg) : ControllerBas
     return Ok();
   }
 
+
+  [Authorize]
+  [HttpGet("validate")]
+  public IActionResult Validate()
+  {
+    // 3.1.1. Извлекаем имя пользователя из claim "name" (см. выдачу токена)
+    var name = User.FindFirst("name")?.Value
+               ?? User.Identity?.Name
+               ?? "user";
+
+    // 3.1.2. Кладём имя в заголовок ответа — Nginx прочитает его и прокинет в Grafana как X-WEBAUTH-USER
+    Response.Headers.Append("X-User", name);
+
+    // 3.1.3. Просто возвращаем 200 OK — факт, что [Authorize] пропустил, означает валидный JWT
+    return Ok(new { ok = true });
+  }
   [HttpPost("login")]
   public async Task<IActionResult> Login([FromBody] Credentials dto)
   {

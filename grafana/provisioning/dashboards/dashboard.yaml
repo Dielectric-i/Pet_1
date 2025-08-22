@@ -1,0 +1,11 @@
+apiVersion: 1                                # версия схемы провижининга
+providers:
+  - name: 'Default'                          # произвольное имя провайдера
+    orgId: 1                                 # ID организации (1 — по умолчанию)
+    folder: 'Public'                         # папка, куда попадут дашборды
+    type: file                               # тип провайдера — файлы
+    disableDeletion: false                   # разрешить удаление через файл
+    updateIntervalSeconds: 10                # период сканирования папки
+    options:
+      path: /var/lib/grafana/dashboards      # путь внутри контейнера Grafana к JSON‑дашбордам
+      foldersFromFilesStructure: true  

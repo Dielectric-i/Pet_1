@@ -64,8 +64,8 @@ using (var scope = app.Services.CreateScope())
 
 // if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "local")
 // {
-//   app.UseSwagger();
-//   app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Pet API v1"));
+  app.UseSwagger();
+  app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Pet API v1"));
 // }
 
 app.UseCors();

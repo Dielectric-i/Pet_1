@@ -50,14 +50,17 @@ services:
     logging: *fluentd-driver
     networks:
       - petnet
-    ports:
-      - "3001:3000"
+    # ports:
+    #   - "3001:3000"
     depends_on:
       - loki
     volumes:
       - grafana-data:/var/lib/grafana:Z
-      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:Z
-  
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:Z            # сами JSON‑дашборды
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro,Z
+      - ./grafana/grafana.ini:/etc/grafana/grafana.ini:ro,Z
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro,Z    # провайдеры дашбордов
+
   ############################
   #  Database (PostgreSQL)   #
   ############################
