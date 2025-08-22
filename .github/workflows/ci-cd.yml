@@ -48,14 +48,11 @@ jobs:
       - name: Deploy to MyServer
         uses: appleboy/ssh-action@v1.2.0
         with:
-          envs: POSTGRES_USER,POSTGRES_PASSWORD,POSTGRES_DB,CONNECTIONSTRINGS__DEFAULT,JWT__KEY
+          envs: POSTGRES_USER,POSTGRES_PASSWORD,POSTGRES_DB,CONNECTIONSTRINGS__DEFAULT,JWT__KEY, JWT__ISSUER
           host: ${{ secrets.VPS_SSH_HOST }}
           username: ${{ secrets.VPS_SSH_USERNAME }}
           key: ${{ secrets.VPS_SSH_SECRET }}
           port: ${{ secrets.VPS_SSH_PORT }}
-          # Добавить JWT_Issuer = PetApi
-          # JWT__KEY 2 подчеркивания лишние?
-          # 
           script: |
             set -exuo pipefail
 
